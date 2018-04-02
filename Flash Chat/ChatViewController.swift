@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 
 class ChatViewController: UIViewController {
@@ -25,8 +26,9 @@ class ChatViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //TODO: Set yourself as the delegate and datasource here:
-        
+        //Set yourself as the delegate and datasource here:
+        messageTableView.delegate = self
+        messageTableView.dataSource = self
         
         
         //TODO: Set yourself as the delegate of the text field here:
@@ -37,34 +39,13 @@ class ChatViewController: UIViewController {
         
         
 
-        //TODO: Register your MessageCell.xib file here:
-
+        //Register your MessageCell.xib file here:
+        messageTableView.register(UINib(nibName: "MessageCell", bundle: nil), forCellReuseIdentifier: "customMessageCell")
+        configureTableView()
         
     }
 
-    ///////////////////////////////////////////
-    
-    //MARK: - TableView DataSource Methods
-    
-    
-    
-    //TODO: Declare cellForRowAtIndexPath here:
-    
-    
-    
-    //TODO: Declare numberOfRowsInSection here:
-    
-    
-    
-    //TODO: Declare tableViewTapped here:
-    
-    
-    
-    //TODO: Declare configureTableView here:
-    
-    
-    
-    ///////////////////////////////////////////
+
     
     //MARK:- TextField Delegate Methods
     
@@ -106,11 +87,53 @@ class ChatViewController: UIViewController {
     
     @IBAction func logOutPressed(_ sender: AnyObject) {
         
-        //TODO: Log out the user and send them back to WelcomeViewController
+        //Log out the user and send them back to WelcomeViewController
+        do {
+            try Auth.auth().signOut()
+            navigationController?.popToRootViewController(animated: true)
+            
+        } catch {
+            print("There was a problem loggin out.")
+        }
+
+    }
+
+}
+
+extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    ///////////////////////////////////////////
+    
+    //MARK: - TableView DataSource Methods
+    
+    //Declare cellForRowAtIndexPath here:
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "customMessageCell", for: indexPath)
+            as? CustomMessageCell else {
+            return UITableViewCell()
+        }
         
+        cell.messageBody.text = "Test \(indexPath)"
+        return cell
+    }
+    
+    //Declare numberOfRowsInSection here:
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 5
     }
     
 
-
+    
+    //TODO: Declare tableViewTapped here:
+    
+    
+    
+    //TODO: Declare configureTableView here:
+    func configureTableView(){
+        messageTableView.rowHeight = UITableViewAutomaticDimension
+        messageTableView.estimatedRowHeight = 120.0
+        
+    }
+    
 }
