@@ -13,7 +13,7 @@ import Firebase
 class ChatViewController: UIViewController {
     
     // Declare instance variables here
-
+    var messageArray: [Message] = [Message]()
     
     // We've pre-linked the IBOutlets
     @IBOutlet var heightConstraint: NSLayoutConstraint!
@@ -41,11 +41,11 @@ class ChatViewController: UIViewController {
         //Register your MessageCell.xib file here:
         messageTableView.register(UINib(nibName: "MessageCell", bundle: nil), forCellReuseIdentifier: "customMessageCell")
         configureTableView()
+        retrieveMessages()
         
     }
     
     //MARK: - Send & Recieve from Firebase
-    
     @IBAction func sendPressed(_ sender: AnyObject) {
         
         messageTextfield.endEditing(true)
@@ -68,15 +68,26 @@ class ChatViewController: UIViewController {
         }
     }
     
-    //TODO: Create the retrieveMessages method here:
-    
-    
+    //Create the retrieveMessages method here:
+    func retrieveMessages(){
+        let messageDB = Database.database().reference().child("Messages")
+        messageDB.observe(.childAdded) { (snapshot) in
+            let snapshotValue = snapshot.value as! Dictionary<String, String>
+            let messageBody = snapshotValue["MessageBody"]!
+            let sender = snapshotValue["Sender"]!
 
-    
-    
+            let message = Message()
+            message.messageBody = messageBody
+            message.sender = sender
+            
+            self.messageArray.append(message)
+            self.configureTableView()
+            self.messageTableView.reloadData()
+            
+        }
+    }
     
     @IBAction func logOutPressed(_ sender: AnyObject) {
-        
         //Log out the user and send them back to WelcomeViewController
         do {
             try Auth.auth().signOut()
@@ -85,7 +96,6 @@ class ChatViewController: UIViewController {
         } catch {
             print("There was a problem loggin out.")
         }
-
     }
 
 }
@@ -98,13 +108,15 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
             as? CustomMessageCell else {
             return UITableViewCell()
         }
-        cell.messageBody.text = "Test \(indexPath)"
+        cell.messageBody.text = messageArray[indexPath.row].messageBody
+        cell.senderUsername.text = messageArray[indexPath.row].sender
+        cell.avatarImageView.image = UIImage(named: "egg")
         return cell
     }
     
     //Declare numberOfRowsInSection here:
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return messageArray.count
     }
     
     //Declare tableViewTapped here:
