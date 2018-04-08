@@ -4,7 +4,6 @@
 //
 //  This is the view controller where users login
 
-
 import UIKit
 import Firebase
 import SVProgressHUD
@@ -24,14 +23,12 @@ class LogInViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
 
-   
     @IBAction func logInPressed(_ sender: AnyObject) {
         
         SVProgressHUD.show()
         
         //Log in the user
-        Auth.auth().signIn(withEmail: emailTextfield.text!, password: passwordTextfield.text!)
-        { (user, error) in
+        Auth.auth().signIn(withEmail: emailTextfield.text!, password: passwordTextfield.text!) { (_, error) in
             if error != nil {
                 print("Error SignIn: \(error!)")
                 
@@ -43,8 +40,5 @@ class LogInViewController: UIViewController {
         }
         
     }
-    
-
-
     
 }  

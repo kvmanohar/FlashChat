@@ -8,7 +8,7 @@
 
 import UIKit
 import Firebase
-
+import ChameleonFramework
 
 class ChatViewController: UIViewController {
     
@@ -21,8 +21,6 @@ class ChatViewController: UIViewController {
     @IBOutlet var messageTextfield: UITextField!
     @IBOutlet var messageTableView: UITableView!
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,7 +30,6 @@ class ChatViewController: UIViewController {
         
         //Set yourself as the delegate of the text field here:
         messageTextfield.delegate = self
-        
         
         //Set the tableView tapGesture here:
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tableViewTapped))
@@ -45,7 +42,7 @@ class ChatViewController: UIViewController {
         
     }
     
-    //MARK: - Send & Recieve from Firebase
+    // MARK: Send & Recieve from Firebase
     @IBAction func sendPressed(_ sender: AnyObject) {
         
         messageTextfield.endEditing(true)
@@ -53,10 +50,9 @@ class ChatViewController: UIViewController {
         sendButton.isEnabled = false
         
         let messageDB = Database.database().reference().child("Messages")
-        let messageDictionary = ["Sender":Auth.auth().currentUser?.email,
+        let messageDictionary = ["Sender": Auth.auth().currentUser?.email,
                                  "MessageBody": messageTextfield.text!]
-        messageDB.childByAutoId().setValue(messageDictionary){
-            (error, reference) in
+        messageDB.childByAutoId().setValue(messageDictionary) { (error, _) in
             if error != nil {
                 print(error!)
             } else {
@@ -69,10 +65,12 @@ class ChatViewController: UIViewController {
     }
     
     //Create the retrieveMessages method here:
-    func retrieveMessages(){
+    func retrieveMessages() {
         let messageDB = Database.database().reference().child("Messages")
         messageDB.observe(.childAdded) { (snapshot) in
-            let snapshotValue = snapshot.value as! Dictionary<String, String>
+            guard let snapshotValue = snapshot.value as? [String: String] else {
+                return
+            }
             let messageBody = snapshotValue["MessageBody"]!
             let sender = snapshotValue["Sender"]!
 
@@ -111,6 +109,13 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
         cell.messageBody.text = messageArray[indexPath.row].messageBody
         cell.senderUsername.text = messageArray[indexPath.row].sender
         cell.avatarImageView.image = UIImage(named: "egg")
+        if cell.senderUsername.text == Auth.auth().currentUser?.email as String? {
+            cell.avatarImageView.backgroundColor = UIColor.flatMint()
+            cell.messageBackground.backgroundColor = UIColor.flatSkyBlue()
+        } else {
+            cell.avatarImageView.backgroundColor = UIColor.flatWatermelon()
+            cell.messageBackground.backgroundColor = UIColor.flatGray()
+        }
         return cell
     }
     
@@ -120,12 +125,12 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     //Declare tableViewTapped here:
-    @objc func tableViewTapped(){
+    @objc func tableViewTapped() {
         messageTextfield.endEditing(true)
     }
     
     //Declare configureTableView here:
-    func configureTableView(){
+    func configureTableView() {
         messageTableView.rowHeight = UITableViewAutomaticDimension
         messageTableView.estimatedRowHeight = 120.0
     }
@@ -143,7 +148,6 @@ extension ChatViewController: UITextFieldDelegate {
         }
     }
     
-
     //Declare textFieldDidEndEditing here:
     func textFieldDidEndEditing(_ textField: UITextField) {
         UIView.animate(withDuration: 0.5) {

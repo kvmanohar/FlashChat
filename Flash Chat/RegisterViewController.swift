@@ -11,7 +11,6 @@ import SVProgressHUD
 
 class RegisterViewController: UIViewController {
 
-    
     //Pre-linked IBOutlets
     @IBOutlet var emailTextfield: UITextField!
     @IBOutlet var passwordTextfield: UITextField!
@@ -24,13 +23,12 @@ class RegisterViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
-
     @IBAction func registerPressed(_ sender: AnyObject) {
         
         SVProgressHUD.show()
         
         //Set up a new user on our Firbase database
-        Auth.auth().createUser(withEmail: emailTextfield.text!, password: passwordTextfield.text!) { (user, error) in
+        Auth.auth().createUser(withEmail: emailTextfield.text!, password: passwordTextfield.text!) { (_, error) in
             if error != nil {
                 print(error!)
             } else {
@@ -42,6 +40,5 @@ class RegisterViewController: UIViewController {
         }
 
     } 
-    
     
 }
